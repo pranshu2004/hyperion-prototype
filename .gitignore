@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+
+# Virtual environments
+.venv/
+venv/
+
+# Node
+node_modules/
+.next/
+dist/
+build/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+
+# Env files
+.env
+
+# Docker
+*.tar
+
+# Misc
+coverage/

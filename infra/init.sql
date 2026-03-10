@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS rides (
+    id SERIAL PRIMARY KEY,
+    ride_id VARCHAR(50) UNIQUE NOT NULL,
+    pickup VARCHAR(255) NOT NULL,
+    destination VARCHAR(255) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    driver_id VARCHAR(50),
+    price INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS drivers (
+    id SERIAL PRIMARY KEY,
+    driver_id VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS payments (
+    id SERIAL PRIMARY KEY,
+    ride_id VARCHAR(50) REFERENCES rides(ride_id),
+    status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
