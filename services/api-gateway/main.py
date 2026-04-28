@@ -38,8 +38,8 @@ logger = logging.getLogger("api-gateway")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"], 
-    allow_credentials=True,
+    allow_origins=["*"],   # this is fine and required to run
+    allow_credentials=False,
     allow_methods=["*"], 
     allow_headers=["*"],
 )

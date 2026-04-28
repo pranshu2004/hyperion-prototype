@@ -411,6 +411,21 @@ function DashboardContent() {
   const FlowWrapper = () => {
     const { fitView } = useReactFlow();
     const layoutInitializedRef = React.useRef(false);
+    const [menu, setMenu] = useState<{ id: string; top: number; left: number } | null>(null);
+
+    const onNodeContextMenu = useCallback(
+      (event: React.MouseEvent, node: Node) => {
+        event.preventDefault();
+        setMenu({
+          id: node.id,
+          top: event.clientY,
+          left: event.clientX,
+        });
+      },
+      []
+    );
+
+    const onPaneClick = useCallback(() => setMenu(null), []);
 
     useEffect(() => {
       if (layoutComputed && !layoutInitializedRef.current) {
@@ -428,6 +443,9 @@ function DashboardContent() {
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onNodeContextMenu={onNodeContextMenu}
+        onPaneClick={onPaneClick}
+        onNodeClick={onPaneClick}
         nodeTypes={nodeTypes}
         className="bg-zinc-950"
         proOptions={{ hideAttribution: true }}
@@ -440,7 +458,26 @@ function DashboardContent() {
           gap={24}
           size={1}
         />
-        <Controls className="!bg-zinc-900 !border-zinc-800 !fill-zinc-400 [&>button]:!border-b-zinc-800 hover:[&>button]:!bg-zinc-800" />
+        {menu && (
+          <div
+            style={{ top: menu.top, left: menu.left }}
+            className="fixed z-50 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl py-1 min-w-[160px] text-zinc-300 text-sm overflow-hidden"
+            onMouseLeave={() => setMenu(null)}
+          >
+            <div className="px-3 py-2 text-xs font-bold text-zinc-500 uppercase tracking-wider border-b border-zinc-800 bg-zinc-900/50">
+              {menu.id}
+            </div>
+            <button className="flex items-center w-full px-3 py-2 text-left hover:bg-zinc-800 hover:text-white transition-colors" onClick={() => setMenu(null)}>
+              View Logs
+            </button>
+            <button className="flex items-center w-full px-3 py-2 text-left hover:bg-zinc-800 hover:text-white transition-colors" onClick={() => setMenu(null)}>
+              Trace Metrics
+            </button>
+            <button className="flex items-center w-full px-3 py-2 text-left hover:bg-zinc-800 hover:text-red-400 transition-colors" onClick={() => setMenu(null)}>
+              Mute Alerts
+            </button>
+          </div>
+        )}
 
         {/* Replay Overlay */}
         <AnimatePresence>
@@ -494,6 +531,37 @@ function DashboardContent() {
         </div>
       </header>
 
+      {/* Global Metrics Bar */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 max-w-[1800px] mx-auto">
+        <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-4 flex items-center justify-between shadow-sm">
+          <div className="flex flex-col">
+            <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-1">Global Uptime</span>
+            <span className="text-zinc-200 font-mono text-xl">99.99%</span>
+          </div>
+          <div className="p-2 bg-emerald-500/10 rounded-lg">
+            <CheckCircle2 className="w-5 h-5 text-emerald-500/80" />
+          </div>
+        </div>
+        <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-4 flex items-center justify-between shadow-sm">
+          <div className="flex flex-col">
+            <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-1">Traces Analyzed (1h)</span>
+            <span className="text-zinc-200 font-mono text-xl">2.4M</span>
+          </div>
+          <div className="p-2 bg-cyan-500/10 rounded-lg">
+            <Activity className="w-5 h-5 text-cyan-500/80" />
+          </div>
+        </div>
+        <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-4 flex items-center justify-between shadow-sm">
+          <div className="flex flex-col">
+            <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-1">Active Services</span>
+            <span className="text-zinc-200 font-mono text-xl">6</span>
+          </div>
+          <div className="p-2 bg-purple-500/10 rounded-lg">
+            <Server className="w-5 h-5 text-purple-500/80" />
+          </div>
+        </div>
+      </div>
+
       <main className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[1800px] mx-auto min-h-[75vh]">
 
         {/* Left Column: Context / RCA Details */}
@@ -513,7 +581,14 @@ function DashboardContent() {
                   <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full" />
                   <ShieldCheck className="relative w-24 h-24 text-emerald-500" />
                 </div>
-                <h2 className="text-3xl font-bold text-white mb-3">System Stable</h2>
+                <div className="flex items-center gap-3 mb-3">
+                  <h2 className="text-3xl font-bold text-white">System Stable</h2>
+                  <motion.div
+                    className="w-3 h-3 bg-emerald-500 rounded-full"
+                    animate={{ scale: [1, 1.3, 1], opacity: [0.5, 1, 0.5] }}
+                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                  />
+                </div>
                 <p className="text-zinc-400 mb-8 text-lg">All telemetry signals normal.</p>
                 <div className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-5 py-2.5 rounded-full text-sm font-semibold border border-emerald-500/20">
                   <Server className="w-4 h-4" />
@@ -643,6 +718,45 @@ function DashboardContent() {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Incident History Panel */}
+          <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-6 relative overflow-hidden shadow-xl flex-1 flex flex-col min-h-0">
+            <div className="flex items-center gap-2 mb-6 border-b border-zinc-800/80 pb-4 shrink-0">
+              <Clock className="w-4 h-4 text-zinc-500" />
+              <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-400">Incident History</h3>
+            </div>
+            <div className="flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar">
+              <div className="group flex items-start gap-3 p-3 rounded-xl hover:bg-zinc-800/40 transition-colors cursor-pointer border border-transparent hover:border-zinc-700/50">
+                <CheckCircle2 className="w-5 h-5 text-zinc-500 group-hover:text-emerald-500/70 shrink-0 mt-0.5 transition-colors" />
+                <div className="flex flex-col gap-1 text-sm">
+                  <span className="text-zinc-300 font-medium group-hover:text-zinc-100 transition-colors">Payment API Latency</span>
+                  <div className="flex items-center gap-2 text-xs text-zinc-600 font-mono">
+                    <span>11:45 AM</span> • <span>Resolved in 4m</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="group flex items-start gap-3 p-3 rounded-xl hover:bg-zinc-800/40 transition-colors cursor-pointer border border-transparent hover:border-zinc-700/50">
+                <CheckCircle2 className="w-5 h-5 text-zinc-500 group-hover:text-emerald-500/70 shrink-0 mt-0.5 transition-colors" />
+                <div className="flex flex-col gap-1 text-sm">
+                  <span className="text-zinc-300 font-medium group-hover:text-zinc-100 transition-colors">Auth Service Down</span>
+                  <div className="flex items-center gap-2 text-xs text-zinc-600 font-mono">
+                    <span>09:12 AM</span> • <span>Resolved in 12m</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="group flex items-start gap-3 p-3 rounded-xl hover:bg-zinc-800/40 transition-colors cursor-pointer border border-transparent hover:border-zinc-700/50">
+                <CheckCircle2 className="w-5 h-5 text-zinc-500 group-hover:text-emerald-500/70 shrink-0 mt-0.5 transition-colors" />
+                <div className="flex flex-col gap-1 text-sm">
+                  <span className="text-zinc-300 font-medium group-hover:text-zinc-100 transition-colors">DB Connection Pool Exhaustion</span>
+                  <div className="flex items-center gap-2 text-xs text-zinc-600 font-mono">
+                    <span>Yesterday</span> • <span>Resolved in 25m</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Right Column: React Flow Topology */}
