@@ -217,10 +217,10 @@ function DashboardContent() {
 
         // Fallback data so the Vercel deployment isn't empty!
         setNodes([
-          { id: 'api-gateway', position: { x: 250, y: 50 }, data: { label: 'api-gateway', error_rate: 0, latency: 17.04, anomalous: false }, type: 'customService' },
-          { id: 'ride-service', position: { x: 250, y: 150 }, data: { label: 'ride-service', error_rate: 0, latency: 16.15, anomalous: false }, type: 'customService' },
-          { id: 'driver-matching', position: { x: 50, y: 250 }, data: { label: 'driver-matching', error_rate: 0, latency: 5.38, anomalous: false }, type: 'customService' },
-          { id: 'payment-service', position: { x: 450, y: 250 }, data: { label: 'payment-service', error_rate: 0, latency: 5.36, anomalous: false }, type: 'customService' }
+          { id: 'api-gateway', position: { x: 250, y: 50 }, data: { label: 'api-gateway', id: 'api-gateway', error_rate: 0, avg_latency: 17.04, anomalous: false }, type: 'custom' },
+          { id: 'ride-service', position: { x: 250, y: 150 }, data: { label: 'ride-service', id: 'ride-service', error_rate: 0, avg_latency: 16.15, anomalous: false }, type: 'custom' },
+          { id: 'driver-matching', position: { x: 50, y: 250 }, data: { label: 'driver-matching', id: 'driver-matching', error_rate: 0, avg_latency: 5.38, anomalous: false }, type: 'custom' },
+          { id: 'payment-service', position: { x: 450, y: 250 }, data: { label: 'payment-service', id: 'payment-service', error_rate: 0, avg_latency: 5.36, anomalous: false }, type: 'custom' }
         ]);
 
         setEdges([
