@@ -18,17 +18,21 @@ Hyperion is an automated Root Cause Analysis (RCA) pipeline designed for complex
     * Runs a ranking algorithm to weigh anomaly strength, blast radius, and temporal priority to determine the absolute root cause.
 3. **The SRE Dashboard (`dashboard/`):** A Next.js application polling the backend API. It utilizes React Flow to render a live topology map. During an incident, it dynamically visualizes the blast radius, the causal chain, and the incident timeline.
 
-## 🚀 Note for Reviewers (Local Setup)
+## Note for Reviewers (Local Setup)
 Because Hyperion analyzes live network traffic, distributed traces, and cascading anomalies, a static web deployment cannot demonstrate the product's value. 
+
 To evaluate the MVP:
 1. Please view our **2-minute demo video** (Link in submission form) to see the engine catching failures in real-time.
 2. To run the environment locally:
    ```bash
-   # 1. Start the infrastructure
+   # 1. Start the microservices infrastructure
    cd infra && docker-compose up -d --build
    
-   # 2. Start the RCA engine
+   # 2. Start the Python RCA engine
    cd ../rca-engine && python main.py
    
-   # 3. Start the dashboard
+   # 3. Start the Hyperion SRE dashboard (Port 3001)
    cd ../dashboard && npm run dev
+
+   # 4. Start the ride-share control panel to inject faults (Port 3000)
+   cd ../frontend && npm run dev
